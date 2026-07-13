@@ -928,7 +928,7 @@ Example markdown:
 ```md
 ## Home
 
-![Home](screenshots/home.png)
+https://github.com/Adhisheshu1210/Smart-Stadiums-Tournament-Operations/blob/main/images/Screenshot%202026-07-13%20212240.png?raw=true
 
 ## Dashboard
 
