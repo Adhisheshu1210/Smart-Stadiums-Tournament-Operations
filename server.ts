@@ -213,7 +213,17 @@ async function startServer() {
   app.post('/api/incidents', async (req, res) => {
     const { title, type, location, description, reporterName, priority } = req.body;
 
-    let aiRecommendation = "1. Isolate the affected area immediately. 2. Dispatch a rapid response supervisor. 3. Monitor live feed cameras.";
+    let aiRecommendation = "";
+
+    // Determine high-fidelity simulated fallback content in case AI is offline or busy
+    let fallbackRecommendation = "1. Isolate the affected area immediately. 2. Dispatch a rapid response supervisor. 3. Monitor live feed cameras.";
+    if (type === 'medical') {
+      fallbackRecommendation = "1. Direct the nearest medical responder in Quadrant 2 to the spot immediately. 2. Clear spectators to allow AED cart passage. 3. Prepare incident report for review.";
+    } else if (type === 'security') {
+      fallbackRecommendation = "1. Dispatch security squad Charlie to de-escalate. 2. Lock nearby automated exit gates if violence escalates. 3. Access CCTV feed camera Sec-14.";
+    } else if (type === 'fire') {
+      fallbackRecommendation = "1. Activate dry-chemical suppression nearest extinguisher. 2. Initiate partial crowd deflection to Gate B. 3. Open direct transit lane for fire department entry.";
+    }
 
     if (ai) {
       try {
@@ -227,19 +237,19 @@ async function startServer() {
         });
         if (response.text) {
           aiRecommendation = response.text.trim();
+        } else {
+          aiRecommendation = fallbackRecommendation;
         }
-      } catch (err) {
-        console.error("Failed to generate AI SOP recommendation:", err);
+      } catch (err: any) {
+        console.warn("Failed to generate AI SOP recommendation (Gemini unavailable), activating local simulation report:", err.message || err);
+        const isHighDemand = err && (err.status === 503 || String(err).includes('503') || String(err).includes('demand') || String(err).includes('UNAVAILABLE'));
+        const prefix = isHighDemand
+          ? "[🚨 Active High-Demand AI Bypass SOP]\n"
+          : "[🚨 Local Offline Backup SOP]\n";
+        aiRecommendation = prefix + fallbackRecommendation;
       }
     } else {
-      // Clever local mock recommendation based on type
-      if (type === 'medical') {
-        aiRecommendation = "1. Direct the nearest medical responder in Quadrant 2 to the spot immediately. 2. Clear spectators to allow AED cart passage. 3. Prepare incident report for review.";
-      } else if (type === 'security') {
-        aiRecommendation = "1. Dispatch security squad Charlie to de-escalate. 2. Lock nearby automated exit gates if violence escalates. 3. Access CCTV feed camera Sec-14.";
-      } else if (type === 'fire') {
-        aiRecommendation = "1. Activate dry-chemical suppression nearest extinguisher. 2. Initiate partial crowd deflection to Gate B. 3. Open direct transit lane for fire department entry.";
-      }
+      aiRecommendation = fallbackRecommendation;
     }
 
     const newIncident: IncidentReport = {
@@ -355,8 +365,45 @@ Additional Volunteer SOP Guidelines:
 
         res.json({ text: response.text });
       } catch (err: any) {
-        console.error("Gemini Chat Error:", err);
-        res.status(500).json({ error: "Unable to process AI request at this time. Running simulation fallback." });
+        console.warn("Gemini Chat API unavailable, activating high-fidelity simulator:", err.message || err);
+        const msgLower = message.toLowerCase();
+        let responseText = "";
+
+        // Determine if it was specifically a 503/high-demand error
+        const isHighDemand = err && (err.status === 503 || String(err).includes('503') || String(err).includes('demand') || String(err).includes('UNAVAILABLE'));
+        const prefix = isHighDemand 
+          ? "⚠️ **[Service Alert]** *The live Google Gemini AI service is currently experiencing extremely high demand. StadiumMind AI has automatically activated the local high-fidelity simulation backup to ensure uninterrupted tournament support.*\n\n"
+          : "⚠️ **[Local Offline Mode]** *Operating in offline high-fidelity simulator fallback.*\n\n";
+
+        if (role === 'volunteer') {
+          if (msgLower.includes('child') || msgLower.includes('lost')) {
+            responseText = prefix + "**[LOCAL SIMULATOR SOP: LOST CHILD PROTOCOL]**\n\n1. **Do not move**: Keep the child in Sector 215 Concourse.\n2. **Dispatch**: Alert unassigned Volunteer Task-3 immediately via your Task panel.\n3. **De-escalate**: Calm the child down, do not broadcast the child's full name over stadium public address for safety.\n4. **Security Handover**: Accompany child to the nearest Security Sub-station behind Sector 201.";
+          } else if (msgLower.includes('medical') || msgLower.includes('hurt') || msgLower.includes('emergency')) {
+            responseText = prefix + "**[LOCAL SIMULATOR SOP: MEDICAL RESPONDER]**\n\n1. **Assess Consciousness**: If breathing, place in recovery position.\n2. **AED Ready**: Dispatch teammate to retrieve the automated external defibrillator located at Sec 112 ADA station.\n3. **Relay Core Info**: Contact Medical Desk (Ext 140) indicating Sector and exact gate details.";
+          } else {
+            responseText = prefix + `Hello! This is StadiumMind AI's Volunteer Hub. I see you are asking about: "${message}". 
+
+To unlock full interactive real-time translation and dynamically generated procedures, configure your **GEMINI_API_KEY** under **Settings > Secrets** in AI Studio! All local systems are currently online and fully prepared to support you.`;
+          }
+        } else {
+          // Fan chatbot fallback
+          if (msgLower.includes('gate d') || msgLower.includes('accessibility') || msgLower.includes('wheelchair') || msgLower.includes('handicap')) {
+            responseText = prefix + "Our stadium offers world-class accessibility! **Gate D (West - Accessible)** is fully optimized with accessible entrance lanes, tactile pavings, and a dedicated ADA service desk. Elevators are directly adjacent to Gate D to take you up to Club levels.";
+          } else if (msgLower.includes('gate 12') || msgLower.includes('gate') || msgLower.includes('gate 5') || msgLower.includes('where is gate')) {
+            responseText = prefix + "Based on RAG data, **Gate D (West)** is less crowded with only a **4-minute** wait. **Gate B (East)** has an **8-minute** wait, while **Gate C** is highly congested (28 mins queue). If you are looking for Gate 12 or Gate 5, enter through Gate B and walk clockwise.";
+          } else if (msgLower.includes('metro') || msgLower.includes('transport') || msgLower.includes('bus')) {
+            responseText = prefix + "We highly recommend the **Meadowlands Express (Line M4)** Metro! Post-match trains run every 3 minutes. Plus, claiming this option in your Fan panel earns you **120 Green Points** towards stadium rewards.";
+          } else if (msgLower.includes('prohibited') || msgLower.includes('bag') || msgLower.includes('items') || msgLower.includes('rules')) {
+            responseText = prefix + "Under standard FIFA 2026 regulations:\n\n- **Prohibited**: Weapons, glass bottles, umbrellas, selfie sticks, and banners larger than 2x1.5m.\n- **Bags**: Only clear plastic bags under 30x15x30cm are allowed inside.";
+          } else if (msgLower.includes('food') || msgLower.includes('eat')) {
+            responseText = prefix + "We recommend **Zero-Waste Greens & Wraps** at Concourse Sec 142 (waitTime: 5 mins, earns **40 Green Points**!) or **Tacos el Tri** at Concourse Sec 112 (waitTime: 20 mins, rating 4.8★).";
+          } else {
+            responseText = prefix + `Welcome to **StadiumMind AI**! I'm here to guide you around the World Cup 2026 Arena.
+
+To activate real-time Gemini language translation in 50+ languages, smart path finding, and customized food suggestions, please configure your **GEMINI_API_KEY** in **Settings > Secrets**. I'm running on a high-fidelity local database in the meantime!`;
+          }
+        }
+        res.json({ text: responseText });
       }
     } else {
       // Ultra-realistic, stateful fallback responder using smart regex matching
@@ -437,9 +484,34 @@ To activate real-time Gemini language translation in 50+ languages, smart path f
           }
         });
         res.json({ text: response.text });
-      } catch (err) {
-        console.error("Failed to generate AI insights:", err);
-        res.status(500).json({ error: "Failed to generate AI Insights report." });
+      } catch (err: any) {
+        console.warn("Failed to generate AI insights (Gemini unavailable), activating local simulation report:", err.message || err);
+        const isHighDemand = err && (err.status === 503 || String(err).includes('503') || String(err).includes('demand') || String(err).includes('UNAVAILABLE'));
+        const prefix = isHighDemand
+          ? "⚠️ **[Service Alert: Gemini High Demand]** *The live Google Gemini AI service is currently experiencing high demand. StadiumMind AI has generated this simulated operational assessment using local fallback analytics.*\n\n"
+          : "⚠️ **[Local Offline Mode]** *Operating in offline high-fidelity simulation fallback.*\n\n";
+
+        const fallbackReport = prefix + `### 📋 Executive Tournament Operations Report — FIFA 2026
+
+**1. Operational Overview**
+The arena has handled a significant volume today with current attendance peaking at **${dataSummary.occupancy}** (${Math.round((dataSummary.occupancy/dataSummary.capacity)*100)}% capacity). Match operations remained highly stable despite crowd spikes. Gate wait times are averaging 15.5 minutes across all stands.
+
+**2. Peak Hours Congestion Prediction**
+- **Inbound bottleneck**: Solved via sequential Gate C/Gate B flow deflection.
+- **Outbound peak (post-match)**: Scheduled to peak at **19:55**. Immediate deployment of transit lines (Line M4 Meadowlands Express running every 3 minutes) will mitigate rail-head congestion.
+- **Critical Risk**: Sector 129 North stand is experiencing higher densities (94%); outbound flows should be deflected to West exits.
+
+**3. Crisis Mitigation & Volunteer Allocation**
+- Dispatch **unassigned volunteers** to **Sector 215 Concourse** to resolve the reported critical missing child task.
+- Allocate secondary support to Concourse Sector 104 to manage food plaza spills and prevent pedestrian injury.
+
+**4. Sustainability & Transport Efficiency KPI**
+- **Public Transport Intake**: **72%** of arriving fans checked in using Meadowlands Metro or walking corridor.
+- **Carbon Offsetting**: Offset **8,450 kg of CO2** compared to standard private vehicle attendance.
+- **Gamification Engagement**: 4,200 fans successfully converted green transport tickets into eco-stadium food coupons.
+
+*Note: This report is generated in local simulation mode. Configure GEMINI_API_KEY to retrieve dynamic operational assessments.*`;
+        res.json({ text: fallbackReport });
       }
     } else {
       // Return beautiful structured simulation report

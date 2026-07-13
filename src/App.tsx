@@ -51,6 +51,7 @@ import {
   UserRole
 } from './types';
 import { EMERGENCY_GUIDES } from './data';
+import { generateMockChatResponse } from './utils/navigation';
 
 
 export default function App() {
@@ -330,18 +331,20 @@ export default function App() {
         })
       }).then(r => r.json());
 
+      const responseText = res.text || generateMockChatResponse(textToSend, userRole === 'volunteer' ? 'volunteer' : 'fan');
+
       const aiMsg: ChatMessage = {
         id: `ai-${Date.now()}`,
         sender: 'ai',
-        text: res.text || "I'm sorry, I'm having trouble retrieving live operations data right now.",
+        text: responseText,
         timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
       };
 
       setChatMessages(prev => [...prev, aiMsg]);
 
       // Speak response if Text-to-Speech is active
-      if (speechEnabled && res.text) {
-        const cleanText = res.text.replace(/[*#`_-]/g, '');
+      if (speechEnabled) {
+        const cleanText = responseText.replace(/[*#`_-]/g, '');
         const utterance = new SpeechSynthesisUtterance(cleanText);
         utterance.lang = selectedLanguage === 'Spanish' ? 'es-ES' : 
                          selectedLanguage === 'French' ? 'fr-FR' : 
@@ -350,7 +353,25 @@ export default function App() {
       }
 
     } catch (err) {
-      console.error(err);
+      console.error("Fetch failed, using local fallback:", err);
+      const responseText = generateMockChatResponse(textToSend, userRole === 'volunteer' ? 'volunteer' : 'fan');
+      const aiMsg: ChatMessage = {
+        id: `ai-${Date.now()}`,
+        sender: 'ai',
+        text: responseText,
+        timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+      };
+      setChatMessages(prev => [...prev, aiMsg]);
+
+      // Speak response if Text-to-Speech is active
+      if (speechEnabled) {
+        const cleanText = responseText.replace(/[*#`_-]/g, '');
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.lang = selectedLanguage === 'Spanish' ? 'es-ES' : 
+                         selectedLanguage === 'French' ? 'fr-FR' : 
+                         selectedLanguage === 'Arabic' ? 'ar-SA' : 'en-US';
+        window.speechSynthesis.speak(utterance);
+      }
     } finally {
       setAiResponding(false);
     }
