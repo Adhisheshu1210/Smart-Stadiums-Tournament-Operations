@@ -1,0 +1,17 @@
+{
+  "short_name": "StadiumMind",
+  "name": "StadiumMind AI - FIFA 2026 Smart Stadium Platform",
+  "description": "GenAI-Powered Smart Stadium and Tournament Operations Platform for the FIFA World Cup 2026.",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#020813",
+  "theme_color": "#00E5FF",
+  "display": "standalone",
+  "orientation": "portrait"
+}
