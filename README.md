@@ -923,19 +923,6 @@ screenshots/
 └── mobile-view.png
 ```
 
-Example markdown:
-
-```md
-## Home
-(https://github.com/Adhisheshu1210/Smart-Stadiums-Tournament-Operations/blob/main/images/Screenshot%202026-07-13%20212240.png?raw=true)
-
-## Dashboard
-(https://github.com/Adhisheshu1210/Smart-Stadiums-Tournament-Operations/blob/main/images/Screenshot%202026-07-13%20212438.png?raw=true)
-
-## Navigation
-(https://github.com/Adhisheshu1210/Smart-Stadiums-Tournament-Operations/blob/main/images/Screenshot%202026-07-13%20212517.png?raw=true)
-```
-
 
 # 🚀 Possible Future Improvements
 
