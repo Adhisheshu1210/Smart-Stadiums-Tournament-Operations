@@ -932,18 +932,13 @@ https://github.com/Adhisheshu1210/Smart-Stadiums-Tournament-Operations/blob/main
 
 ## Dashboard
 
-![Dashboard](screenshots/dashboard.png)
+https://github.com/Adhisheshu1210/Smart-Stadiums-Tournament-Operations/blob/main/images/Screenshot%202026-07-13%20212240.png?raw=true
 
-## AI Assistant
-
-![Assistant](screenshots/assistant.png)
 
 ## Navigation
 
 ![Navigation](screenshots/navigation.png)
 ```
-
-Adding screenshots significantly improves the repository presentation.
 
 ---
 
