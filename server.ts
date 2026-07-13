@@ -286,33 +286,44 @@ async function startServer() {
   // Secures Server-Side Gemini Chatbot (RAG Built-in)
   // ----------------------------------------------------
   app.post('/api/gemini/chat', async (req, res) => {
-    const { message, chatHistory, role } = req.body; // role can be 'fan' or 'volunteer'
-    const contextStr = JSON.stringify(STADIUM_KNOWLEDGE_BASE);
+    try {
+      const { message, chatHistory, role } = req.body; // role can be 'fan' or 'volunteer'
 
-    let systemInstruction = `You are StadiumMind AI, the premier FIFA World Cup 2026 Smart Stadium Intelligent Assistant. 
-    You help Fans navigate the stadium, understand prohibited policies, find restrooms, food, and accessible gates, and manage their match experience.
-    
-    Here is our authentic, verified RAG Knowledge Base of stadium policies and details:
-    ${contextStr}
-    
-    CRITICAL INSTRUCTIONS:
-    1. Answer queries accurately based on this Knowledge Base. If a query is outside our data (e.g. general knowledge), use your intelligence to provide a helpful, polite response fitting a world-class FIFA host.
-    2. Answer in the same language as the user's query (automatic language detection). Support English, Spanish, French, Arabic, Hindi, Portuguese, Japanese, Chinese, German, Italian, etc.
-    3. Be concise, extremely polite, and provide useful directions. Mention specific Gates (e.g., Gate D for accessibility) or sectors where relevant.
-    4. Keep tone professional, welcoming, and athletic. Use clear formatting.`;
+      // Validate message input
+      if (typeof message !== 'string' || !message.trim()) {
+        return res.status(400).json({ error: "Invalid request: 'message' is required and must be a non-empty string." });
+      }
+
+      // Limit prompt size for security
+      if (message.length > 2000) {
+        return res.status(400).json({ error: "Invalid request: 'message' exceeds maximum allowed length of 2000 characters." });
+      }
+
+      // Simple sanitization: trim and remove potential script tags
+      const sanitizedMessage = message.trim().replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
+
+      const contextStr = JSON.stringify(STADIUM_KNOWLEDGE_BASE);
+
+    let systemInstruction = `You are StadiumMind AI, an intelligent assistant for FIFA World Cup 2026 Smart Stadium Operations.
+
+Provide accurate, concise, and helpful responses for fans, volunteers, organizers, and stadium staff.
+
+Assist with stadium navigation, accessibility, transportation, sustainability, emergency procedures, crowd awareness, and tournament operations.
+
+If information is simulated, clearly state that it is part of the demonstration.
+
+Here is our authentic, verified RAG Knowledge Base of stadium policies and details:
+${contextStr}
+
+Role Context: ${role || 'fan'}. Respond in the user's language (automatic language detection).`;
 
     if (role === 'volunteer') {
-      systemInstruction = `You are StadiumMind AI's Volunteer Operations Assistant. 
-      Your purpose is to guide volunteers, staff, and medical personnel on official FIFA tournament procedures, emergency SOPs, lost child workflows, and translation tasks.
-      
-      Verified Volunteer & Emergency RAG Knowledge Base:
-      ${contextStr}
-      
-      CRITICAL OPERATIONS INSTRUCTIONS:
-      1. Lost Child Workflow: Guide volunteer to report Sector immediately, locate nearest security kiosk, and stay with the child. Never broadcast the child's name.
-      2. Medical Emergency SOP: Direct volunteer to confirm consciousness, signal for AED, alert dispatch, and keep crowd clear.
-      3. Overcrowding SOP: Pause entry, direct flow to underutilized gates.
-      4. Speak with professional, highly calm, structured authority. Use lists, bold terms, and step-by-step logic. Answer in the language of the query.`;
+      systemInstruction += `
+
+Additional Volunteer SOP Guidelines:
+1. Lost Child Workflow: Guide volunteer to report Sector immediately, locate nearest security kiosk, stay with the child. Never broadcast full name.
+2. Medical Emergency SOP: Assess state, call Medical Command (Ext 140), request portable AED.
+3. Overcrowding SOP: Pause gates, redirect crowd flow to underutilized gates.`;
     }
 
     if (ai) {
@@ -382,6 +393,10 @@ To activate real-time Gemini language translation in 50+ languages, smart path f
       }
 
       res.json({ text: responseText });
+    }
+    } catch (routeErr: any) {
+      console.error("Unhandled error in Gemini Chat Route:", routeErr);
+      res.status(500).json({ error: "An unhandled operational error occurred." });
     }
   });
 

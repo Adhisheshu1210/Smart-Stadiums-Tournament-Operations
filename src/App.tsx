@@ -432,8 +432,51 @@ export default function App() {
 
   const activeMatch = matches.find(m => m.status === 'live') || matches[0];
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#020813] text-slate-100 flex flex-col items-center justify-center font-sans p-6" role="status" aria-live="polite">
+        <div className="text-center space-y-6 max-w-md w-full">
+          {/* Animated pulsing stadium logo container */}
+          <div className="relative inline-flex p-5 bg-gradient-to-tr from-slate-900 to-[#00E5FF]/20 rounded-3xl border border-[#00E5FF]/30 shadow-2xl shadow-[#00E5FF]/10 animate-pulse">
+            <Activity className="h-12 w-12 text-[#00E5FF]" />
+            <span className="absolute -top-1 -right-1 flex h-4 w-4">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500"></span>
+            </span>
+          </div>
+
+          <div className="space-y-2">
+            <h1 className="font-display font-bold text-2xl tracking-wider text-white">StadiumMind AI</h1>
+            <p className="text-xs text-[#00E5FF] font-mono uppercase tracking-widest font-semibold">FIFA 2026 Smart Stadium Platform</p>
+          </div>
+
+          {/* Skeleton loading bars */}
+          <div className="space-y-3 bg-slate-900/60 p-5 rounded-2xl border border-white/5 shadow-inner">
+            <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
+              <div className="h-3 w-1/3 bg-slate-800 rounded animate-pulse"></div>
+              <div className="h-3.5 w-12 bg-slate-800 rounded animate-pulse"></div>
+            </div>
+            <div className="space-y-2 pt-1.5">
+              <div className="h-2 w-full bg-slate-800 rounded animate-pulse"></div>
+              <div className="h-2 w-5/6 bg-slate-800 rounded animate-pulse"></div>
+              <div className="h-2 w-4/6 bg-slate-800 rounded animate-pulse"></div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center space-x-2 text-xs text-slate-400 font-mono">
+            <RefreshCw className="h-3.5 w-3.5 animate-spin text-emerald-400" />
+            <span>Booting live IoT telemetry feed...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`min-h-screen bg-[#020813] text-slate-100 flex flex-col font-sans selection:bg-brand-accent selection:text-slate-900 transition-colors duration-300 ${highContrast ? 'contrast-125 saturate-150' : ''} ${largeFonts ? 'text-lg' : 'text-sm'}`}>
+      
+      {/* Skip link for keyboard/screen-reader users */}
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       
       {/* Smart Alert Notification Ticker */}
       {alerts.length > 0 && (
@@ -644,6 +687,7 @@ export default function App() {
               <div className="space-y-1">
                 <button
                   onClick={() => { setActiveTab('overview'); setMobileMenuOpen(false); }}
+                  aria-label="Navigate to Interactive Map & Digital Twin Overview"
                   className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left transition-all cursor-pointer ${activeTab === 'overview' ? 'bg-[#00E5FF]/10 text-[#00E5FF] font-semibold border-l-4 border-l-[#00E5FF]' : 'text-slate-300 hover:bg-white/5'}`}
                 >
                   <Compass className="h-4 w-4 text-[#00E5FF]" />
@@ -651,6 +695,7 @@ export default function App() {
                 </button>
                 <button
                   onClick={() => { setActiveTab('chat'); setMobileMenuOpen(false); }}
+                  aria-label="Navigate to AI Assistant Chatbot"
                   className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left transition-all cursor-pointer ${activeTab === 'chat' ? 'bg-[#00E5FF]/10 text-[#00E5FF] font-semibold border-l-4 border-l-[#00E5FF]' : 'text-slate-300 hover:bg-white/5'}`}
                 >
                   <Sparkles className="h-4 w-4 text-violet-400" />
@@ -658,6 +703,7 @@ export default function App() {
                 </button>
                 <button
                   onClick={() => { setActiveTab('transport'); setMobileMenuOpen(false); }}
+                  aria-label="Navigate to Transportation and Sustainability Hub"
                   className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left transition-all cursor-pointer ${activeTab === 'transport' ? 'bg-[#00E5FF]/10 text-[#00E5FF] font-semibold border-l-4 border-l-[#00E5FF]' : 'text-slate-300 hover:bg-white/5'}`}
                 >
                   <Bus className="h-4 w-4 text-emerald-400" />
@@ -665,6 +711,7 @@ export default function App() {
                 </button>
                 <button
                   onClick={() => { setActiveTab('match'); setMobileMenuOpen(false); }}
+                  aria-label="Navigate to Match Companion AI Panel"
                   className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left transition-all cursor-pointer ${activeTab === 'match' ? 'bg-[#00E5FF]/10 text-[#00E5FF] font-semibold border-l-4 border-l-[#00E5FF]' : 'text-slate-300 hover:bg-white/5'}`}
                 >
                   <Tv className="h-4 w-4 text-amber-400" />
@@ -680,6 +727,7 @@ export default function App() {
                 {userRole === 'volunteer' && (
                   <button
                     onClick={() => { setActiveTab('volunteer'); setMobileMenuOpen(false); }}
+                    aria-label="Navigate to Volunteer Tasks List"
                     className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left transition-all cursor-pointer ${activeTab === 'volunteer' ? 'bg-brand-green/10 text-brand-green font-semibold border-l-4 border-l-brand-green' : 'text-slate-300 hover:bg-white/5'}`}
                   >
                     <Clipboard className="h-4 w-4 text-brand-green" />
@@ -688,6 +736,7 @@ export default function App() {
                 )}
                 <button
                   onClick={() => { setActiveTab('emergency'); setMobileMenuOpen(false); }}
+                  aria-label="Navigate to Emergency SOP and Intelligence Panel"
                   className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left transition-all cursor-pointer ${activeTab === 'emergency' ? 'bg-[#00E5FF]/10 text-[#00E5FF] font-semibold border-l-4 border-l-[#00E5FF]' : 'text-slate-300 hover:bg-white/5'}`}
                 >
                   <ShieldAlert className="h-4 w-4 text-rose-500" />
@@ -696,6 +745,7 @@ export default function App() {
                 {userRole === 'organizer' && (
                   <button
                     onClick={() => { setActiveTab('insights'); setMobileMenuOpen(false); }}
+                    aria-label="Navigate to AI Insights Executive Report Dashboard"
                     className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left transition-all cursor-pointer ${activeTab === 'insights' ? 'bg-purple-500/10 text-purple-400 font-semibold border-l-4 border-l-purple-500' : 'text-slate-300 hover:bg-white/5'}`}
                   >
                     <FileText className="h-4 w-4 text-purple-400" />
@@ -725,7 +775,7 @@ export default function App() {
         </nav>
 
         {/* Main Application Feed Panel */}
-        <main className="flex-1 p-4 lg:p-6 space-y-6 overflow-y-auto">
+        <main id="main-content" tabIndex={-1} className="outline-none flex-1 p-4 lg:p-6 space-y-6 overflow-y-auto">
           
           {/* Welcome translation header (Dynamic multilingual support indicator) */}
           <div className="p-4 rounded-2xl bg-gradient-to-r from-slate-900 to-[#071123] border border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -1277,6 +1327,7 @@ export default function App() {
                 <input
                   type="text"
                   placeholder="Ask any stadium, safety, lost-and-found or route question..."
+                  aria-label="Ask any stadium, safety, lost-and-found or route question"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   onKeyDown={(e) => {
@@ -1289,12 +1340,14 @@ export default function App() {
                   onClick={handleSimulatedMicInput}
                   className={`p-2.5 rounded-xl border transition-all cursor-pointer ${micActive ? 'bg-rose-500 border-rose-500 text-white animate-pulse' : 'bg-slate-900 border-white/10 text-slate-400 hover:text-white'}`}
                   title="Simulate Voice Speech-to-Text Input"
+                  aria-label="Simulate Voice Speech-to-Text Input"
                 >
                   <Mic className="h-4 w-4" />
                 </button>
 
                 <button
                   onClick={() => handleSendChatMessage()}
+                  aria-label="Send message"
                   className="p-2.5 bg-[#00E5FF] hover:bg-[#00c8e0] text-slate-900 font-bold rounded-xl transition-all cursor-pointer"
                 >
                   <Send className="h-4 w-4" />
@@ -1599,6 +1652,7 @@ export default function App() {
                       <input
                         type="text"
                         placeholder="Ask about Kane's passing accuracy, Pulisic trivia..."
+                        aria-label="Ask about match statistics, player performance, and tournament info"
                         value={matchChatInput}
                         onChange={(e) => setMatchChatInput(e.target.value)}
                         onKeyDown={(e) => {
@@ -1608,6 +1662,7 @@ export default function App() {
                       />
                       <button
                         onClick={() => handleSendMatchChatMessage()}
+                        aria-label="Send match question"
                         className="p-2 bg-amber-500 text-slate-900 font-bold rounded-lg hover:bg-amber-400 transition-all cursor-pointer text-xs flex items-center gap-1"
                       >
                         <Send className="h-3 w-3" />
@@ -1734,8 +1789,9 @@ export default function App() {
 
                     <form onSubmit={handleReportIncident} className="space-y-3.5 text-xs">
                       <div className="space-y-1">
-                        <label className="text-slate-400 font-mono">Incident Title / Hazard Type</label>
+                        <label htmlFor="inc-title" className="text-slate-400 font-mono">Incident Title / Hazard Type</label>
                         <input
+                          id="inc-title"
                           type="text"
                           placeholder="e.g. Wet ground spill, Blocked Corridor, etc."
                           value={newIncident.title}
@@ -1746,8 +1802,9 @@ export default function App() {
 
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1">
-                          <label className="text-slate-400 font-mono">Incident Type</label>
+                          <label htmlFor="inc-type" className="text-slate-400 font-mono">Incident Type</label>
                           <select
+                            id="inc-type"
                             value={newIncident.type}
                             onChange={(e) => setNewIncident({ ...newIncident, type: e.target.value as any })}
                             className="w-full bg-slate-950 border border-white/10 rounded-xl p-2.5 text-slate-200 focus:border-[#00E5FF]/50 outline-none cursor-pointer"
@@ -1761,8 +1818,9 @@ export default function App() {
                         </div>
 
                         <div className="space-y-1">
-                          <label className="text-slate-400 font-mono">Priority Alert</label>
+                          <label htmlFor="inc-priority" className="text-slate-400 font-mono">Priority Alert</label>
                           <select
+                            id="inc-priority"
                             value={newIncident.priority}
                             onChange={(e) => setNewIncident({ ...newIncident, priority: e.target.value as any })}
                             className="w-full bg-slate-950 border border-white/10 rounded-xl p-2.5 text-slate-200 focus:border-[#00E5FF]/50 outline-none cursor-pointer"
@@ -1776,8 +1834,9 @@ export default function App() {
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-slate-400 font-mono">Exact Sector Location</label>
+                        <label htmlFor="inc-loc" className="text-slate-400 font-mono">Exact Sector Location</label>
                         <input
+                          id="inc-loc"
                           type="text"
                           placeholder="e.g. Sector 104 Concourse near Burger Plaza"
                           value={newIncident.location}
@@ -1787,8 +1846,9 @@ export default function App() {
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-slate-400 font-mono">Hazard Description</label>
+                        <label htmlFor="inc-desc" className="text-slate-400 font-mono">Hazard Description</label>
                         <textarea
+                          id="inc-desc"
                           placeholder="Provide descriptive details of the hazard so that the Gemini AI Emergency SOP generator can provide tailored steps."
                           value={newIncident.description}
                           onChange={(e) => setNewIncident({ ...newIncident, description: e.target.value })}

@@ -73,3 +73,38 @@ body {
   overflow-x: hidden;
 }
 
+/* Accessibility Skip Link styling */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: #00E5FF;
+  color: #020813;
+  padding: 8px 16px;
+  z-index: 1000;
+  transition: top 0.2s;
+  font-weight: bold;
+  border-radius: 8px;
+}
+.skip-link:focus {
+  top: 10px;
+  left: 10px;
+  outline: 3px solid #00E5FF;
+}
+
+/* Highly visible focus rings on keyboard navigation */
+*:focus-visible {
+  outline: 3px solid #00E5FF !important;
+  outline-offset: 2px !important;
+}
+
+/* Support prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
