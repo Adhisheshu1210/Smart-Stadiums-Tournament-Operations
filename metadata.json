@@ -1,0 +1,6 @@
+{
+  "name": "StadiumMind AI",
+  "description": "GenAI-Powered Smart Stadium and Tournament Operations Platform for FIFA World Cup 2026.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
